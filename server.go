@@ -1,5 +1,8 @@
 package main
 
+// TODO: handle redirects appropriately, otherwise we get e.g.
+// http://localhost:41781/auth-sign-in
+
 // example: packr install && n2proxy -backend http://localhost:8000 -tls -cfg empty.yml -port 2112
 
 import (
