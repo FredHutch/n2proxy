@@ -2,7 +2,6 @@ package main
 
 // example: packr install && n2proxy -backend http://localhost:8000 -tls -cfg empty.yml -port 2112
 
-
 import (
 	"crypto/tls"
 	"encoding/base64"
@@ -145,6 +144,8 @@ func main() {
 
 	err = logger.Sync()
 	if err != nil {
+		// ignoring error with permission from:
+		// https://github.com/uber-go/zap/issues/328#issuecomment-284337436
 		// fmt.Printf("Error synchronizing logger: %s\n", err.Error())
 		// os.Exit(1)
 	}
@@ -248,8 +249,6 @@ func main() {
 	srv.TLSConfig = tlsCfg
 	srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0)
 
-
-
 	go func() {
 		time.Sleep(2 * time.Second)
 		os.RemoveAll(dir)
@@ -260,7 +259,6 @@ func main() {
 		fmt.Printf("Error starting proxyin TLS mode: %s\n", err.Error())
 	}
 }
-
 
 // getEnv gets an environment variable or sets a default if
 // one does not exist.
