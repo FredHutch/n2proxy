@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/txn2/n2proxy",
+	"ImportPath": "github.com/FredHutch/n2proxy",
 	"GoVersion": "go1.10",
 	"GodepVersion": "v80",
 	"Deps": [
