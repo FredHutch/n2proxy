@@ -52,6 +52,17 @@ type Eng struct {
 func (e *Eng) ProcessRequest(w http.ResponseWriter, r *http.Request) {
 
 	b, _ := ioutil.ReadAll(r.Body)
+	// fmt.Println("ACTUAL_BACKEND: ", os.Getenv("ACTUAL_BACKEND"))
+	// fmt.Println("ACTUAL_FRONTEND: ", os.Getenv("ACTUAL_FRONTEND"))
+	for k, v := range r.Header {
+		if k == "Location" { // change to Location
+			newValue := strings.Replace(v[0], os.Getenv("ACTUAL_BACKEND"), os.Getenv("ACTUAL_FRONTEND"), -1)
+			r.Header[k] = []string{newValue}
+		}
+	}
+	// for k, v := range r.Header {
+	// 	fmt.Println("k:", k, "v:", v)
+	// }
 	r.Body.Close()
 
 	// bypass on urlWhitelist

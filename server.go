@@ -118,9 +118,17 @@ func main() {
 
 	// command line falls back to env
 	port := flag.String("port", portEnv, "port to listen on.")
+	hostname, err := os.Hostname()
+	if err != nil {
+		fmt.Println("Could not get hostname")
+		os.Exit(1)
+	}
+	frontend := fmt.Sprintf("https://%s:%s", hostname, *port)
+	os.Setenv("ACTUAL_FRONTEND", frontend)
 	cfgFile := flag.String("cfg", cfgFileEnv, "config file path.")
 	tlsCfgFile := flag.String("tlsCfg", tlsCfgFileEnv, "tls config file path.")
 	backend := flag.String("backend", backendEnv, "backend server.")
+	os.Setenv("ACTUAL_BACKEND", *backend)
 	logout := flag.String("logout", logoutEnv, "log output stdout | ")
 	srvtls := flag.Bool("tls", tlsEnvBool, "TLS Support (requires crt and key)")
 	// crt := flag.String("crt", crtEnv, "Path to cert. (enable --tls)")
