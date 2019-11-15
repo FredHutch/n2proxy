@@ -1,5 +1,8 @@
 package main
 
+// example: packr install && n2proxy -backend http://localhost:8000 -tls -cfg empty.yml -port 2112
+
+
 import (
 	"crypto/tls"
 	"encoding/base64"
@@ -124,7 +127,6 @@ func main() {
 	version := flag.Bool("version", false, "Display version.")
 	flag.Parse()
 
-	fmt.Println("dbg0")
 	if *version {
 		fmt.Printf("Version: %s\n", Version)
 		os.Exit(1)
@@ -134,21 +136,18 @@ func main() {
 	zapCfg.DisableCaller = true
 	zapCfg.DisableStacktrace = true
 	zapCfg.OutputPaths = []string{*logout}
-	fmt.Println("dbg1")
 
 	logger, err := zapCfg.Build()
 	if err != nil {
 		fmt.Printf("Can not build logger: %s\n", err.Error())
 		return
 	}
-	fmt.Println("dbg2")
 
 	err = logger.Sync()
 	if err != nil {
-		fmt.Printf("Error synchronizing logger: %s\n", err.Error())
-		os.Exit(1)
+		// fmt.Printf("Error synchronizing logger: %s\n", err.Error())
+		// os.Exit(1)
 	}
-	fmt.Println("dbg3")
 
 	logger.Info("Starting reverse proxy on port: " + *port)
 	logger.Info("Requests proxied to Backend: " + *backend)
@@ -180,9 +179,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	defer fmt.Println("removed temp dir")
 	defer os.RemoveAll(dir)
-	defer fmt.Println("removing temp dir")
 	box := packr.NewBox("./certs")
 	crtEncoded, err := box.FindString("wildcard.fhcrc.org.crt.base64")
 	if err != nil {
@@ -229,8 +226,6 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	fmt.Println("key is", key)
-	fmt.Println("crt is", crt)
 
 	// Get a generic TLS configuration
 	tlsCfg := sec.GenericTLSConfig()
@@ -253,33 +248,19 @@ func main() {
 	srv.TLSConfig = tlsCfg
 	srv.TLSNextProto = make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0)
 
+
+
+	go func() {
+		time.Sleep(2 * time.Second)
+		os.RemoveAll(dir)
+	}()
+
 	err = srv.ListenAndServeTLS(crt, key)
 	if err != nil {
 		fmt.Printf("Error starting proxyin TLS mode: %s\n", err.Error())
 	}
 }
 
-func getKey() ([]byte, error) {
-	box := packr.NewBox("./certs")
-	return box.Find("fhcrc.org.key")
-}
-
-func getCrt() ([]byte, error) {
-	box := packr.NewBox("./certs")
-	return box.Find("wildcard.fhcrc.org.crtIIII")
-}
-
-func loadX509KeyPair() (tls.Certificate, error) {
-	certPEMBlock, err := getCrt()
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	keyPEMBlock, err := getKey()
-	if err != nil {
-		return tls.Certificate{}, err
-	}
-	return tls.X509KeyPair(certPEMBlock, keyPEMBlock)
-}
 
 // getEnv gets an environment variable or sets a default if
 // one does not exist.
