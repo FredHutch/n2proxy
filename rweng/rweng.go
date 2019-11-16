@@ -2,6 +2,7 @@ package rweng
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -57,6 +58,7 @@ func (e *Eng) ProcessRequest(w http.ResponseWriter, r *http.Request) {
 	for k, v := range r.Header {
 		if k == "Location" { // change to Location
 			newValue := strings.Replace(v[0], os.Getenv("ACTUAL_BACKEND"), os.Getenv("ACTUAL_FRONTEND"), -1)
+			fmt.Println("Changed location header ", v[0], " to ", newValue)
 			r.Header[k] = []string{newValue}
 		}
 	}
